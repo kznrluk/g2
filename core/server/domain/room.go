@@ -1,15 +1,24 @@
 package domain
 
-type RoomId uint16
+type RoomId uint32
 
 type Rooms interface {
-	Add(room Room)
+	CreateNewRoom() Room
 	Find(id RoomId) Room
 	GC()
 }
 
 type Room interface {
 	IsThisRoom(id RoomId) bool
-	ConnectPlayer() (error, PlayerId)
-	GetInactiveTime() int
+	ConnectNewPlayer() (PlayerId, error)
+	GetInactiveSeconds() int
+	GetRoomStatus() RoomStatus
+}
+
+type RoomStatus struct {
+	RoomId         RoomId         `json:"roomId,omitempty"`
+	SelectablePack []string       `json:"selectablePack,omitempty"`
+	Pack           []string       `json:"pack,omitempty"`
+	Players        []PlayerStatus `json:"players,omitempty"`
+	IsShown        bool           `json:"isShown,omitempty"`
 }

@@ -19,4 +19,5 @@ func NewRouter(handlers handler.AllHandler) Router {
 
 func (r router) Set(e *echo.Echo) {
 	e.GET("/check", r.handlers.HealthCheckHandler)
+	e.GET("/ws", r.handlers.WebSocketUpgradeHandler)
 }

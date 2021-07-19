@@ -1,7 +1,7 @@
 <template>
   <div>
     <ol class="list">
-      <li v-for="player in $props.players" :key="player.id">
+      <li v-for="player of $props.players" :key="player.id">
         <Card
           :content="player.isSelected ? isShown ? player.selectedNumber : '✔︎' : '?' "
           :is-highlighted="player.isSelected && !isShown"
@@ -13,17 +13,18 @@
 </template>
 
 <script>
+/**
+ * {
+ *   id: "hogehuga",
+ *   isSelected: false,
+ *   selectedNumber: null,
+ *   isControllable: true,
+ * }
+ */
+
 export default {
   props: {
     players: {
-      /**
-       * {
-       *   id: "hogehuga",
-       *   isSelected: false,
-       *   selectedNumber: null,
-       *   isControllable: true,
-       * }
-       */
       type: Array,
       default() { return [] }
     },

@@ -59,6 +59,22 @@ export default {
       const d = this.state.isShown;
       this.$set(this.state, "isShown", !d);
     }
+  },
+
+  mounted () {
+    console.log('HI!')
+    const ws = new WebSocket("ws://localhost:8090/ws")
+    ws.addEventListener('open', (socket) => {
+      console.log('Connected')
+      console.log(socket)
+      ws.send(JSON.stringify({
+        api: "Ping"
+      }))
+    })
+
+    ws.addEventListener('message', (event) => {
+      console.log('Message from server ', event.data);
+    })
   }
 }
 </script>

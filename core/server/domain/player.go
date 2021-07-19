@@ -1,19 +1,18 @@
 package domain
 
 type Players interface {
-	ConnectPlayer() Player
-	DisconnectPlayer(Player)
+	AddPlayer() Player
+	DeletePlayer(id PlayerId) error
+	Length() int
 
 	SetEstimate(id PlayerId, selected string) error
-	RevealAll()
 	ResetAll()
 
 	GetPlayerStatusList() PlayerStatusList
-	find(PlayerId) Player
 }
 
 type PlayerStatusList interface {
-	ToJSON() string
+	ToStructArray() []PlayerStatus
 }
 
 type PlayerStatus struct {
@@ -26,7 +25,13 @@ type PlayerStatus struct {
 type PlayerId string
 
 type Player interface {
+	GetPlayerId() PlayerId
 	IsOwnId(PlayerId) bool
+
+	Reset()
+
+	SetEstimate(selected string) error
+	Promote()
 
 	GetPlayerStatus() PlayerStatus
 }

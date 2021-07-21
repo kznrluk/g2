@@ -57,16 +57,29 @@ func HandleWebSocket(conn net.Conn) {
 			continue
 		}
 
-		ConnectionPool[0] = append(ConnectionPool[0], conn)
-
-		writer := NewResponseWriter(conn, ConnectionPool[0])
-		switch data.Api {
-		case "CreateRoom":
+		if data.RoomId == 0 {
+			writer := NewResponseWriter(conn, nil)
 			WSCreateRoomHandler(writer, data.Data)
-		case "Join":
+			continue
+		}
 
+		ConnectionPool[0] = append(ConnectionPool[0], conn)
+		writer := NewResponseWriter(conn, ConnectionPool[0])
+		if data.Id == "" {
+			writer := NewResponseWriter(conn, nil)
+			WSJoinHandler(writer, domain.RoomId(data.RoomId), data.Data)
+			continue
+		}
+
+		switch data.Api {
 		case "Ping":
 			WSPingHandler(writer, data.Data)
+		case "SetEstimate":
+			WSSetEstimateHandler(domain.PlayerId(data.Id), domain.RoomId(data.RoomId), writer, data.Data)
+		case "Reveal":
+			WSRevealHandler(domain.PlayerId(data.Id), domain.RoomId(data.RoomId), writer, data.Data)
+		case "Reset":
+			WSResetHandler(domain.PlayerId(data.Id), domain.RoomId(data.RoomId), writer, data.Data)
 		default:
 			fmt.Printf("WebSocket: 未知のAPIです %s", data.Api)
 		}
@@ -77,9 +90,6 @@ func HandleWebSocket(conn net.Conn) {
 
 func WSPingHandler(writer domain.WSResponseWriter, data []byte) {
 	writer.WriteAll([]byte("Pong"))
-}
-
-type WSCreateRoomData struct {
 }
 
 func WSCreateRoomHandler(writer domain.WSResponseWriter, data []byte) {
@@ -96,6 +106,68 @@ func WSCreateRoomHandler(writer domain.WSResponseWriter, data []byte) {
 	writer.WriteAll(b)
 }
 
-func WSJoinHandler(writer domain.WSResponseWriter, data []byte) {
+func WSJoinHandler(writer domain.WSResponseWriter, roomId domain.RoomId, data []byte) {
+	rooms := room.GetRooms()
+	r := rooms.Find(roomId)
+	id, _ := r.ConnectNewPlayer()
 
+	writer.Write([]byte("{ \"id\": \"" + id + "\" }")) // なんとかしたい
+
+	b, err := json.Marshal(r.GetRoomStatus())
+	if err != nil {
+		writer.WriteAll([]byte(err.Error()))
+	}
+
+	writer.WriteAll(b)
+}
+
+func WSSetEstimateHandler(id domain.PlayerId, roomId domain.RoomId, writer domain.WSResponseWriter, data []byte) {
+	rooms := room.GetRooms()
+	r := rooms.Find(roomId)
+
+	err := r.SetEstimate(id, string(data))
+	if err != nil {
+		writer.Write([]byte(err.Error()))
+	}
+
+	b, err := json.Marshal(r.GetRoomStatus())
+	if err != nil {
+		writer.WriteAll([]byte(err.Error()))
+	}
+
+	writer.WriteAll(b)
+}
+
+func WSRevealHandler(id domain.PlayerId, roomId domain.RoomId, writer domain.WSResponseWriter, data []byte) {
+	rooms := room.GetRooms()
+	r := rooms.Find(roomId)
+
+	err := r.RevealAll(id)
+	if err != nil {
+		writer.Write([]byte(err.Error()))
+	}
+
+	b, err := json.Marshal(r.GetRoomStatus())
+	if err != nil {
+		writer.WriteAll([]byte(err.Error()))
+	}
+
+	writer.WriteAll(b)
+}
+
+func WSResetHandler(id domain.PlayerId, roomId domain.RoomId, writer domain.WSResponseWriter, data []byte) {
+	rooms := room.GetRooms()
+	r := rooms.Find(roomId)
+
+	err := r.ResetAll(id)
+	if err != nil {
+		writer.Write([]byte(err.Error()))
+	}
+
+	b, err := json.Marshal(r.GetRoomStatus())
+	if err != nil {
+		writer.WriteAll([]byte(err.Error()))
+	}
+
+	writer.WriteAll(b)
 }

@@ -13,6 +13,10 @@ type Room interface {
 	ConnectNewPlayer() (PlayerId, error)
 	GetInactiveSeconds() int
 	GetRoomStatus() RoomStatus
+
+	SetEstimate(id PlayerId, selected string) error
+	RevealAll(id PlayerId) error
+	ResetAll(id PlayerId) error
 }
 
 type RoomStatus struct {

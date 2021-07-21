@@ -6,7 +6,8 @@ type WSResponseWriter interface {
 }
 
 type WSRequest struct {
-	Api  string `json:"api"`
-	Path string `json:"path"`
-	Data []byte `json:"data"`
+	Api    string `json:"api"`
+	Id     string `json:"id"`
+	RoomId int32  `json:"roomId"`
+	Data   []byte `json:"data"`
 }

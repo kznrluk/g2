@@ -10,6 +10,18 @@ type room struct {
 	players domain.Players
 }
 
+func (r *room) SetEstimate(id domain.PlayerId, selected string) error {
+	panic("implement me")
+}
+
+func (r *room) RevealAll(id domain.PlayerId) error {
+	panic("implement me")
+}
+
+func (r *room) ResetAll(id domain.PlayerId) error {
+	panic("implement me")
+}
+
 func (r *room) GetRoomId() domain.RoomId {
 	panic("implement me")
 }
